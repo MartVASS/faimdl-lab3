@@ -1,7 +1,7 @@
 import os
 import zipfile
 import numpy as np
-import urllib
+import urllib.request
 
 
 # Function to denormalize image for visualization
@@ -24,25 +24,21 @@ def check_and_download_data():
         print("Dataset non trouvé. Téléchargement en cours...")
         os.makedirs("dataset", exist_ok=True)
         
-        # Téléchargement
+        print(f"📡 Téléchargement depuis {url}...")
+        # Cette ligne télécharge le fichier physiquement
         urllib.request.urlretrieve(url, zip_path)
-        
-        # Extraction
+
+        print("📦 Extraction des fichiers (cela peut prendre 2-3 minutes)...")
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall("dataset/")
+            zip_ref.extractall(dataset_path)
         
-        # Nettoyage : on supprime le ZIP pour gagner de la place
+        print("🧹 Nettoyage du fichier ZIP...")
         os.remove(zip_path)
-        print("Extracting data completed, ZIP file deleted.")
+        print("✅ Terminé ! Le dataset est prêt dans :", dataset_path)
     else:
         
-        print("Dataset found ready to extract data...")
-        # Extraction
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall("dataset/")
-        
-        # Nettoyage : on supprime le ZIP pour gagner de la place
-        os.remove(zip_path)
-        print("Extracting data completed, ZIP file deleted")
+        # On vérifie si le dossier ET un fichier clé existent
+        if os.path.exists(dataset_path) and os.path.exists(os.path.join(dataset_path, "words.txt")):
+            print("✅ Dataset déjà extrait et complet.")
 
-    print("Datas ready !")
+
