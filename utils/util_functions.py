@@ -1,4 +1,7 @@
+import os
+import zipfile
 import numpy as np
+import urllib
 
 
 # Function to denormalize image for visualization
@@ -10,4 +13,26 @@ def denormalize(image):
     image = np.clip(image, 0, 1)
     return image
 
-print("Ok dude")
+# Function to load the dataset TinyImage200
+
+def check_and_download_data():
+    dataset_path = "dataset/tiny-imagenet-200"
+    zip_path = "dataset/tiny-imagenet-200.zip"
+    url = "http://cs231n.stanford.edu/tiny-imagenet-200.zip"
+
+    if not os.path.exists(dataset_path):
+        print("Dataset non trouvé. Téléchargement en cours...")
+        os.makedirs("dataset", exist_ok=True)
+        
+        # Téléchargement
+        urllib.request.urlretrieve(url, zip_path)
+        
+        # Extraction
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall("dataset/")
+        
+        # Nettoyage : on supprime le ZIP pour gagner de la place
+        os.remove(zip_path)
+        print("Extraction terminée et ZIP supprimé.")
+    else:
+        print("Dataset déjà présent. Prêt à travailler !")
