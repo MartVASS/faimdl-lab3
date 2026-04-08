@@ -50,9 +50,9 @@ def adjust_data():
         
         for line in f:
             fn, cls, *_ = line.split('\t')
-            os.makedirs(f'tiny-imagenet/tiny-imagenet-200/val/{cls}', exist_ok=True)
+            os.makedirs(f'dataset/tiny-imagenet-200/tiny-imagenet-200/val/{cls}', exist_ok=True)
 
-            shutil.copyfile(f'tiny-imagenet/tiny-imagenet-200/val/images/{fn}', f'tiny-imagenet/tiny-imagenet-200/val/{cls}/{fn}')
+            shutil.copyfile(f'dataset/tiny-imagenet-200/tiny-imagenet-200/val/images/{fn}', f'dataset/tiny-imagenet-200/tiny-imagenet-200/val/{cls}/{fn}')
 
-    shutil.rmtree('tiny-imagenet/tiny-imagenet-200/val/images')
+    shutil.rmtree('dataset/tiny-imagenet-200/tiny-imagenet-200/val/images')
     print("succesfully adjusting data")
