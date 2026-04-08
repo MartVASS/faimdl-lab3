@@ -43,16 +43,36 @@ def check_and_download_data():
             print("✅ Dataset already extracted and complete.")
 
 
+
+
 def adjust_data():
+    base_path = 'dataset/tiny-imagenet-200/tiny-imagenet-200/val'
+    source_dir = os.path.join(base_path, 'images')
+    annot_file = os.path.join(base_path, 'val_annotations.txt')
 
+    # On vérifie si le dossier 'images' existe. 
+    # S'il n'existe plus, c'est que le script a déjà tourné avec succès.
+    if not os.path.exists(source_dir):
+        print("Data already adjusted. Skipping.")
+        return
 
-    with open('dataset/tiny-imagenet-200/tiny-imagenet-200/val/val_annotations.txt') as f:
-        
+    with open(annot_file) as f:
         for line in f:
             fn, cls, *_ = line.split('\t')
-            os.makedirs(f'dataset/tiny-imagenet-200/tiny-imagenet-200/val/{cls}', exist_ok=True)
+            dest_folder = os.path.join(base_path, cls)
+            
+            os.makedirs(dest_folder, exist_ok=True)
+            
+            # On définit les chemins source et destination
+            src_path = os.path.join(source_dir, fn)
+            dst_path = os.path.join(dest_folder, fn)
+            
+            # On déplace le fichier au lieu de le copier (plus rapide et évite les doublons)
+            if os.path.exists(src_path):
+                shutil.move(src_path, dst_path)
 
-            shutil.copyfile(f'dataset/tiny-imagenet-200/tiny-imagenet-200/val/images/{fn}', f'dataset/tiny-imagenet-200/tiny-imagenet-200/val/{cls}/{fn}')
-
-    shutil.rmtree('dataset/tiny-imagenet-200/tiny-imagenet-200/val/images')
+    # Une fois que tous les fichiers sont déplacés, on supprime le dossier vide
+    shutil.rmtree(source_dir)
     print("succesfully adjusting data")
+
+    
