@@ -176,3 +176,7 @@ cython_debug/
 # Data
 dataset/
 data/
+
+# PyTorch models
+*.pth
+*.pt
