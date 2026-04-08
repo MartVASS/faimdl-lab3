@@ -33,6 +33,16 @@ def check_and_download_data():
         
         # Nettoyage : on supprime le ZIP pour gagner de la place
         os.remove(zip_path)
-        print("Extraction terminée et ZIP supprimé.")
+        print("Extracting data completed, ZIP file deleted.")
     else:
-        print("Dataset déjà présent. Prêt à travailler !")
+        
+        print("Dataset found ready to extract data...")
+        # Extraction
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall("dataset/")
+        
+        # Nettoyage : on supprime le ZIP pour gagner de la place
+        os.remove(zip_path)
+        print("Extracting data completed, ZIP file deleted")
+
+    print("Datas ready !")
