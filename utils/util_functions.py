@@ -3,10 +3,18 @@ import shutil
 import zipfile
 import numpy as np
 import urllib.request
+from torchvision.datasets import ImageFolder
+import torchvision.transforms as T
 
 
 # Function to denormalize image for visualization
 def denormalize(image):
+    """Denormalize image for visualization
+    
+    params: image
+    
+    return image
+    """
     image = image.to('cpu').numpy().transpose((1, 2, 0))
     mean = np.array([0.485, 0.456, 0.406])
     std = np.array([0.229, 0.224, 0.225])
@@ -17,6 +25,8 @@ def denormalize(image):
 # Function to load the dataset TinyImage200
 
 def check_and_download_data():
+    """ Get dataset from web if not downloaded and extract all files in a new folder"""
+    
     dataset_path = "dataset/tiny-imagenet-200"
     zip_path = "dataset/tiny-imagenet-200.zip"
     url = "http://cs231n.stanford.edu/tiny-imagenet-200.zip"
@@ -46,6 +56,8 @@ def check_and_download_data():
 
 
 def adjust_data():
+
+    """Adjust data to be able to use image folder"""
     base_path = 'dataset/tiny-imagenet-200/tiny-imagenet-200/val'
     source_dir = os.path.join(base_path, 'images')
     annot_file = os.path.join(base_path, 'val_annotations.txt')
@@ -75,4 +87,20 @@ def adjust_data():
     shutil.rmtree(source_dir)
     print("succesfully adjusting data")
 
+def split_dataset():
+
+    """Split the dataset into train set and test set
     
+    return train_dataset, test_dataset
+    """
+
+    transform = T.Compose([
+    T.Resize((224, 224)),  # Resize to fit the input dimensions of the network
+    T.ToTensor(),
+    T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+
+    tiny_imagenet_dataset_train = ImageFolder(root='dataset/tiny-imagenet-200/tiny-imagenet-200/train', transform=transform)
+    tiny_imagenet_dataset_val = ImageFolder(root='dataset/tiny-imagenet-200/tiny-imagenet-200/val', transform=transform)
+
+    return tiny_imagenet_dataset_train, tiny_imagenet_dataset_val
