@@ -1,0 +1,55 @@
+_wandb:
+    value:
+        cli_version: 0.25.1
+        e:
+            ssaq667hbr1wo369foxfw91rmea5c6cs:
+                codePath: train.py
+                codePathLocal: train.py
+                cpu_count: 8
+                cpu_count_logical: 16
+                disk:
+                    /:
+                        total: "510478585856"
+                        used: "192977752064"
+                email: vasseurmartin2003@gmail.com
+                executable: C:\Users\vasse\faimdl-lab3\.venv\Scripts\python.exe
+                git:
+                    commit: 84ccb09e38be64b00ce82b8a45fdc54b3b03ce6b
+                    remote: https://github.com/MartVASS/faimdl-lab3.git
+                host: PC_de_Martin
+                memory:
+                    total: "16538972160"
+                os: Windows-11-10.0.26200-SP0
+                program: c:\Users\vasse\faimdl-lab3\train.py
+                python: CPython 3.14.3
+                root: C:\Users\vasse\faimdl-lab3
+                startedAt: "2026-04-09T16:21:28.997610Z"
+                writerId: ssaq667hbr1wo369foxfw91rmea5c6cs
+        m: []
+        python_version: 3.14.3
+        t:
+            "1":
+                - 1
+                - 41
+            "2":
+                - 1
+                - 41
+            "3":
+                - 3
+                - 16
+            "4": 3.14.3
+            "5": 0.25.1
+            "8":
+                - 3
+            "12": 0.25.1
+            "13": windows-amd64
+batch_size:
+    value: 32
+dataset_fraction:
+    value: 0.1
+epochs:
+    value: 3
+learning_rate:
+    value: 0.001
+optimizer:
+    value: Adam

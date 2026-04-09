@@ -1,0 +1,28 @@
+{
+  "os": "Windows-11-10.0.26200-SP0",
+  "python": "CPython 3.14.3",
+  "startedAt": "2026-04-09T16:21:28.997610Z",
+  "program": "c:\\Users\\vasse\\faimdl-lab3\\train.py",
+  "codePath": "train.py",
+  "codePathLocal": "train.py",
+  "git": {
+    "remote": "https://github.com/MartVASS/faimdl-lab3.git",
+    "commit": "84ccb09e38be64b00ce82b8a45fdc54b3b03ce6b"
+  },
+  "email": "vasseurmartin2003@gmail.com",
+  "root": "C:\\Users\\vasse\\faimdl-lab3",
+  "host": "PC_de_Martin",
+  "executable": "C:\\Users\\vasse\\faimdl-lab3\\.venv\\Scripts\\python.exe",
+  "cpu_count": 8,
+  "cpu_count_logical": 16,
+  "disk": {
+    "/": {
+      "total": "510478585856",
+      "used": "192977752064"
+    }
+  },
+  "memory": {
+    "total": "16538972160"
+  },
+  "writerId": "ssaq667hbr1wo369foxfw91rmea5c6cs"
+}

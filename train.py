@@ -18,10 +18,13 @@ def main():
     parser.add_argument('--save_path', type=str, default='checkpoints/best_model.pth', help='Path to save best model')
     args = parser.parse_args()
 
+    # ✅ Définir la clé API directement dans l'environnement
+    os.environ["WANDB_API_KEY"] = "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"
+    wandb.login()         # variable d'environnement
+
     # 1️⃣ Initialisation
     wandb.init(
         project="faimdl-lab3",  # nom de ton projet
-        entity="vasseurmartin2003-politecnico-di-torino",
         config={
             "batch_size": args.batch_size,
             "learning_rate": 1e-3,
