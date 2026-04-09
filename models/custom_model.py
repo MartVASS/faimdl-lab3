@@ -52,12 +52,9 @@ class CustomNet(nn.Module):
     )
 
     self.classifier = nn.Sequential(
+        nn.AdaptiveAvgPool2d((1,1)),
         nn.Flatten(),
-        nn.Linear(in_features = 256*14*14,
-                  out_features = 512),
-        nn.ReLU(),
-        nn.Dropout(0.5),
-        nn.Linear(512,200)
+        nn.Linear(256, 200)
     )
 
 
