@@ -14,6 +14,8 @@ def main():
 
     print(f"Length of train dataset: {len(train_dataset)}")
     print(f"Length of test dataset: {len(test_dataset)}")
+    
+    class_names = train_dataset.classes
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers = 4, persistent_workers = True)
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=32, shuffle=False, num_workers = 4, persistent_workers = True)
@@ -22,6 +24,9 @@ def main():
     train_features_batch, train_labels_batch = next(iter(train_loader))
     print(train_features_batch.shape) 
     print(train_labels_batch.shape)
+
+    view_image(train_features_batch, train_labels_batch, class_names)
+
 
 if __name__ == '__main__':
     main()

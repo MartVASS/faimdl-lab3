@@ -3,8 +3,10 @@ import shutil
 import zipfile
 import numpy as np
 import urllib.request
+import torch
 from torchvision.datasets import ImageFolder
 import torchvision.transforms as T
+import matplotlib.pyplot as plt
 
 
 # Function to denormalize image for visualization
@@ -104,3 +106,16 @@ def split_dataset():
     tiny_imagenet_dataset_val = ImageFolder(root='dataset/tiny-imagenet-200/tiny-imagenet-200/val', transform=transform)
 
     return tiny_imagenet_dataset_train, tiny_imagenet_dataset_val
+
+def view_image(train_features_batch, train_labels_batch, class_names):
+
+    """Vizualize one random image given a batch of train and test image and the class names."""
+    torch.manual_seed(42)
+    random_idx = torch.randint(0, len(train_features_batch), size = [1]).item()
+    img, label = train_features_batch[random_idx], train_labels_batch[random_idx]
+    plt.imshow(denormalize(img))
+    plt.title(class_names[label])
+    plt.axis(False)
+    plt.show()
+    print(f"Image size: {img.shape}")
+    print(f"Label: {label}, label size: {label.shape}")
