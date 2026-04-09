@@ -8,6 +8,7 @@ from torchvision.datasets import ImageFolder
 import torchvision.transforms as T
 import matplotlib.pyplot as plt
 from tqdm.auto import tqdm # Import tqdm for progress bar
+from torch.utils.data import Subset
 
 
 # Function to denormalize image for visualization
@@ -122,7 +123,7 @@ def view_image(train_features_batch, train_labels_batch, class_names):
     print(f"Label: {label}, label size: {label.shape}")
 
 
-def train(epoch, model, train_loader, criterion, optimizer):
+def train(epoch, model, train_loader, criterion, optimizer, device):
     """Perform a training epoch
     
     params:
@@ -131,6 +132,7 @@ def train(epoch, model, train_loader, criterion, optimizer):
     train_loader: torch.utils.data.DataLoader - Training dataloader
     criterion: torch.nn - Loss function
     optimizer: torch.optim - Optimizer
+    device: torch.device - Device used for training data
     
     return: None
     """
@@ -163,13 +165,14 @@ def train(epoch, model, train_loader, criterion, optimizer):
     print(f'Train Epoch: {epoch} Loss: {train_loss:.6f} Acc: {train_accuracy:.2f}%')
 
 # Testing loop
-def validate(model, val_loader, criterion):
+def validate(model, val_loader, criterion, device):
     """Performs a testing loop
     
     params:
     model: nn.Module - Model to test
     val_loader: torch.utils.data.DataLoader - Testing dataloader
     criterion: torch.nn - Loss function
+    device: torch.device - Device used for testing data
 
     return:
     val_accuracy: float - Testing accuracy
@@ -196,3 +199,9 @@ def validate(model, val_loader, criterion):
 
     print(f'Testing Loss: {val_loss:.6f} Acc: {val_accuracy:.2f}%')
     return val_accuracy
+
+
+def reduce_dataset(dataset, fraction=0.1):
+    indices = np.random.choice(len(dataset), int(len(dataset)*fraction), replace=False)
+    return Subset(dataset, indices)
+

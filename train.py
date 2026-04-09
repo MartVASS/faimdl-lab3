@@ -13,13 +13,17 @@ def main():
 
     train_dataset, test_dataset = split_dataset()
 
-    print(f"Length of train dataset: {len(train_dataset)}")
-    print(f"Length of test dataset: {len(test_dataset)}")
-    
     class_names = train_dataset.classes
 
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers = 4, persistent_workers = True)
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=32, shuffle=False, num_workers = 4, persistent_workers = True)
+    train_dataset = reduce_dataset(train_dataset, 0.1)
+    test_dataset = reduce_dataset(test_dataset, 0.1)
+
+    print(f"Length of train dataset: {len(train_dataset)}")
+    print(f"Length of test dataset: {len(test_dataset)}")
+
+
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=16, shuffle=True, num_workers = 2, pin_memory = False)
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=16, shuffle=False, num_workers = 2, pin_memory = False)
 
     # Check out what's inside the training dataloader
     train_features_batch, train_labels_batch = next(iter(train_loader))
@@ -41,7 +45,28 @@ def main():
     y_pred = model_lab(dt.unsqueeze(0).to(device))
     print(y_pred.shape)
 
-    
+    # 4. Train and test the model
+
+    model = model_lab.to(device)
+    criterion = torch.nn.CrossEntropyLoss()
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=1e-4)
+
+    best_acc = 0
+
+    # Run the training process for {num_epochs} epochs
+    num_epochs = 3
+    for epoch in tqdm(range(1, num_epochs + 1)):
+        train(epoch, model, train_loader, criterion, optimizer, device)
+
+        # At the end of each training iteration, perform a validation step
+        val_accuracy = validate(model, test_loader, criterion, device)
+
+        # Best validation accuracy
+        best_acc = max(best_acc, val_accuracy)
+
+
+    print(f'Best validation accuracy: {best_acc:.2f}%')
+
 
 if __name__ == '__main__':
     main()
