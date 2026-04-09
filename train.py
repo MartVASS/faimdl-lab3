@@ -36,5 +36,12 @@ def main():
 
     model_lab = CustomNet().to(device) 
 
+    # Create a dummy tensor to test the model 
+    dt = torch.randn(size=(3,224,224))
+    y_pred = model_lab(dt.unsqueeze(0).to(device))
+    print(y_pred.shape)
+
+    
+
 if __name__ == '__main__':
     main()
