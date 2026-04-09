@@ -1,71 +1,104 @@
 import torch
-
+from torch.utils.data import DataLoader
 from utils.util_functions import *
 from models.custom_model import CustomNet
+from tqdm import tqdm
+import argparse
+import os
 
 def main():
-    # 1. Get data ready
+    # -------------------------------
+    # 1️⃣ Parse arguments
+    # -------------------------------
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--batch_size', type=int, default=32, help='Batch size for training')
+    parser.add_argument('--epochs', type=int, default=3, help='Number of training epochs')
+    parser.add_argument('--dataset_fraction', type=float, default=0.1, help='Fraction of dataset to use')
+    parser.add_argument('--save_path', type=str, default='best_model.pth', help='Path to save best model')
+    args = parser.parse_args()
 
-    check_and_download_data()
-    adjust_data()  # To allow using Image Folder on data
-
-    # 2. Split data into training and test sets
-
-    train_dataset, test_dataset = split_dataset()
-
-    class_names = train_dataset.classes
-
-    train_dataset = reduce_dataset(train_dataset, 0.1)
-    test_dataset = reduce_dataset(test_dataset, 0.1)
-
-    print(f"Length of train dataset: {len(train_dataset)}")
-    print(f"Length of test dataset: {len(test_dataset)}")
-
-
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=16, shuffle=True, num_workers = 2, pin_memory = False)
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=16, shuffle=False, num_workers = 2, pin_memory = False)
-
-    # Check out what's inside the training dataloader
-    train_features_batch, train_labels_batch = next(iter(train_loader))
-    print(train_features_batch.shape) 
-    print(train_labels_batch.shape)
-
-    view_image(train_features_batch, train_labels_batch, class_names) # Viewing a random image
-
-    # 3. Import model 
-
-    # Set up device agnostic code
+    # -------------------------------
+    # 2️⃣ Setup device
+    # -------------------------------
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    print(f"Using {device}")
+    print(f"Using device: {device}")
 
-    model_lab = CustomNet().to(device) 
+    # -------------------------------
+    # 3️⃣ Load & prepare data
+    # -------------------------------
+    check_and_download_data()
+    adjust_data()
+    train_dataset, test_dataset = split_dataset()
+    
+    # Reduce dataset for fast testing
+    train_dataset = reduce_dataset(train_dataset, args.dataset_fraction)
+    test_dataset = reduce_dataset(test_dataset, args.dataset_fraction)
 
-    # Create a dummy tensor to test the model 
-    dt = torch.randn(size=(3,224,224))
-    y_pred = model_lab(dt.unsqueeze(0).to(device))
-    print(y_pred.shape)
+    print(f"Training samples: {len(train_dataset)}, Testing samples: {len(test_dataset)}")
 
-    # 4. Train and test the model
+    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=2, pin_memory=True)
+    test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=2, pin_memory=True)
 
-    model = model_lab.to(device)
+    # -------------------------------
+    # 4️⃣ Initialize model, criterion, optimizer
+    # -------------------------------
+    model = CustomNet().to(device)
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
-    best_acc = 0
 
-    # Run the training process for {num_epochs} epochs
-    num_epochs = 3
-    for epoch in tqdm(range(1, num_epochs + 1)):
-        train(epoch, model, train_loader, criterion, optimizer, device)
+    best_acc = 0.0
 
-        # At the end of each training iteration, perform a validation step
-        val_accuracy = validate(model, test_loader, criterion, device)
+    # -------------------------------
+    # 5️⃣ Training loop
+    # -------------------------------
+    for epoch in range(1, args.epochs + 1):
+        model.train()
+        running_loss = 0.0
+        running_corrects = 0
+        for inputs, labels in tqdm(train_loader, desc=f"Epoch {epoch}/{args.epochs}"):
+            inputs, labels = inputs.to(device), labels.to(device)
 
-        # Best validation accuracy
-        best_acc = max(best_acc, val_accuracy)
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
 
+            # Metrics
+            running_loss += loss.item() * inputs.size(0)
+            running_corrects += (outputs.argmax(1) == labels).sum().item()
 
-    print(f'Best validation accuracy: {best_acc:.2f}%')
+        epoch_loss = running_loss / len(train_loader.dataset)
+        epoch_acc = 100.0 * running_corrects / len(train_loader.dataset)
+        print(f"Train Loss: {epoch_loss:.4f} Acc: {epoch_acc:.2f}%")
 
+        # -------------------------------
+        # 6️⃣ Validation
+        # -------------------------------
+        model.eval()
+        val_loss = 0.0
+        val_corrects = 0
+        with torch.no_grad():
+            for inputs, labels in test_loader:
+                inputs, labels = inputs.to(device), labels.to(device)
+                outputs = model(inputs)
+                loss = criterion(outputs, labels)
+                val_loss += loss.item() * inputs.size(0)
+                val_corrects += (outputs.argmax(1) == labels).sum().item()
 
-if __name__ == '__main__':
+        val_loss = val_loss / len(test_loader.dataset)
+        val_acc = 100.0 * val_corrects / len(test_loader.dataset)
+        print(f"Validation Loss: {val_loss:.4f} Acc: {val_acc:.2f}%")
+
+        # -------------------------------
+        # 7️⃣ Save best model
+        # -------------------------------
+        if val_acc > best_acc:
+            best_acc = val_acc
+            torch.save(model.state_dict(), args.save_path)
+            print(f"Saved best model to {args.save_path}")
+
+    print(f"Training complete. Best validation accuracy: {best_acc:.2f}%")
+
+if __name__ == "__main__":
     main()
