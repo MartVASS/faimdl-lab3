@@ -7,6 +7,7 @@ import torch
 from torchvision.datasets import ImageFolder
 import torchvision.transforms as T
 import matplotlib.pyplot as plt
+from tqdm.auto import tqdm # Import tqdm for progress bar
 
 
 # Function to denormalize image for visualization
@@ -119,3 +120,43 @@ def view_image(train_features_batch, train_labels_batch, class_names):
     plt.show()
     print(f"Image size: {img.shape}")
     print(f"Label: {label}, label size: {label.shape}")
+
+
+def train(epoch, model, train_loader, criterion, optimizer):
+    """Perform a training epoch
+    
+    params:
+    epoch: int - Number of the current epoch
+    model: nn.Module - Model to train
+    criterion: torch.nn.Module - Loss function
+    optimizer: torch.optim - Optimizer
+    
+    return: None
+    """
+    
+    model.train()
+    running_loss = 0.0
+    correct = 0
+    total = 0
+
+    for batch_idx, (inputs, targets) in tqdm(enumerate(train_loader)):
+
+      inputs, targets = inputs.to(device), targets.to(device)
+
+      # Compute prediction and loss
+      outputs = model(inputs)
+      loss = criterion(outputs, targets)
+
+      # Backpropagation
+      optimizer.zero_grad()
+      loss.backward()
+      optimizer.step()
+
+      running_loss += loss.item()
+      _, predicted = outputs.max(1)
+      total += targets.size(0)
+      correct += predicted.eq(targets).sum().item()
+
+    train_loss = running_loss / len(train_loader)
+    train_accuracy = 100. * correct / total
+    print(f'Train Epoch: {epoch} Loss: {train_loss:.6f} Acc: {train_accuracy:.2f}%')
