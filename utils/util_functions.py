@@ -128,12 +128,13 @@ def train(epoch, model, train_loader, criterion, optimizer):
     params:
     epoch: int - Number of the current epoch
     model: nn.Module - Model to train
-    criterion: torch.nn.Module - Loss function
+    train_loader: torch.utils.data.DataLoader - Training dataloader
+    criterion: torch.nn - Loss function
     optimizer: torch.optim - Optimizer
     
     return: None
     """
-    
+
     model.train()
     running_loss = 0.0
     correct = 0
@@ -160,3 +161,38 @@ def train(epoch, model, train_loader, criterion, optimizer):
     train_loss = running_loss / len(train_loader)
     train_accuracy = 100. * correct / total
     print(f'Train Epoch: {epoch} Loss: {train_loss:.6f} Acc: {train_accuracy:.2f}%')
+
+# Testing loop
+def validate(model, val_loader, criterion):
+    """Performs a testing loop
+    
+    params:
+    model: nn.Module - Model to test
+    val_loader: torch.utils.data.DataLoader - Testing dataloader
+    criterion: torch.nn - Loss function
+
+    return:
+    val_accuracy: float - Testing accuracy
+    """
+    model.eval()
+    val_loss = 0
+
+    correct, total = 0, 0
+
+    with torch.inference_mode():
+        for batch_idx, (inputs, targets) in tqdm(enumerate(val_loader)):
+            inputs, targets = inputs.to(device), targets.to(device)
+
+            outputs = model(inputs)
+            loss = criterion(outputs, targets)
+
+            val_loss += loss.item()
+            _, predicted = outputs.max(1)
+            total += targets.size(0)
+            correct += predicted.eq(targets).sum().item()
+
+    val_loss = val_loss / len(val_loader)
+    val_accuracy = 100. * correct / total
+
+    print(f'Testing Loss: {val_loss:.6f} Acc: {val_accuracy:.2f}%')
+    return val_accuracy
