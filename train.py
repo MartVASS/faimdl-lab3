@@ -49,8 +49,7 @@ def main():
 
     model = model_lab.to(device)
     criterion = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=1e-4)
-
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
     best_acc = 0
 
     # Run the training process for {num_epochs} epochs
