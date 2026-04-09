@@ -1,6 +1,7 @@
 import torch
 
 from utils.util_functions import *
+from models.custom_model import CustomNet
 
 def main():
     # 1. Get data ready
@@ -25,8 +26,15 @@ def main():
     print(train_features_batch.shape) 
     print(train_labels_batch.shape)
 
-    view_image(train_features_batch, train_labels_batch, class_names)
+    view_image(train_features_batch, train_labels_batch, class_names) # Viewing a random image
 
+    # 3. Import model 
+
+    # Set up device agnostic code
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print(f"Using {device}")
+
+    model_lab = CustomNet().to(device) 
 
 if __name__ == '__main__':
     main()
