@@ -21,6 +21,7 @@ def main():
     # 1️⃣ Initialisation
     wandb.init(
         project="faimdl-lab3",  # nom de ton projet
+        entity="vasseurmartin2003-politecnico-di-torino",
         config={
             "batch_size": args.batch_size,
             "learning_rate": 1e-3,
