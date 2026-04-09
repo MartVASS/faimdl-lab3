@@ -5,6 +5,7 @@ from models.custom_model import CustomNet
 from tqdm import tqdm
 import argparse
 import os
+import wandb
 
 def main():
     # -------------------------------
@@ -14,9 +15,21 @@ def main():
     parser.add_argument('--batch_size', type=int, default=32, help='Batch size for training')
     parser.add_argument('--epochs', type=int, default=3, help='Number of training epochs')
     parser.add_argument('--dataset_fraction', type=float, default=0.1, help='Fraction of dataset to use')
-    parser.add_argument('--save_path', type=str, default='best_model.pth', help='Path to save best model')
+    parser.add_argument('--save_path', type=str, default='checkpoints/best_model.pth', help='Path to save best model')
     args = parser.parse_args()
 
+    # 1️⃣ Initialisation
+    wandb.init(
+        project="faimdl-lab3",  # nom de ton projet
+        config={
+            "batch_size": args.batch_size,
+            "learning_rate": 1e-3,
+            "epochs": args.epochs,
+            "optimizer": "Adam",
+            "dataset_fraction": args.dataset_fraction
+        }
+    )
+    config = wandb.config
     # -------------------------------
     # 2️⃣ Setup device
     # -------------------------------
@@ -70,6 +83,7 @@ def main():
 
         epoch_loss = running_loss / len(train_loader.dataset)
         epoch_acc = 100.0 * running_corrects / len(train_loader.dataset)
+
         print(f"Train Loss: {epoch_loss:.4f} Acc: {epoch_acc:.2f}%")
 
         # -------------------------------
@@ -90,15 +104,25 @@ def main():
         val_acc = 100.0 * val_corrects / len(test_loader.dataset)
         print(f"Validation Loss: {val_loss:.4f} Acc: {val_acc:.2f}%")
 
+        wandb.log({
+            "train_loss": epoch_loss,
+            "train_acc": epoch_acc,
+            "val_loss": val_loss,
+            "val_acc": val_acc,
+            "epoch": epoch
+        })
+
         # -------------------------------
         # 7️⃣ Save best model
         # -------------------------------
         if val_acc > best_acc:
             best_acc = val_acc
             torch.save(model.state_dict(), args.save_path)
+            wandb.save("args.save_path")
             print(f"Saved best model to {args.save_path}")
 
     print(f"Training complete. Best validation accuracy: {best_acc:.2f}%")
-
+    
+    wandb.finish()
 if __name__ == "__main__":
     main()
